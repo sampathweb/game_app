@@ -13,19 +13,19 @@ def get_player_input(valid_selections):
 
 def get_computer_input(valid_choices, winning_combos, player_choices, current_choices, dif_level):
     '''Returns the computer selected row, col'''
-    choices = defaultdict(list)
+    selections = defaultdict(list)
     if dif_level == 1:  # Easy - Pick any one from valid_choices list
         selected_item = choice(valid_choices)
     elif dif_level == 2:  # Hard - Try to block the player from winning
         for win_set in winning_combos:
             rem_items = list(win_set - player_choices - current_choices)
-            choices[len(rem_items)].append(rem_items)
-        if choices.get(1):
-            selected_item = choice(choice(choices[1]))
-        elif choices.get(2):
-            selected_item = choice(choice(choices[2]))
+            selections[len(rem_items)].append(rem_items)
+        if selections.get(1):
+            selected_item = choice(choice(selections[1]))
+        elif selections.get(2):
+            selected_item = choice(choice(selections[2]))
         else:
-            selected_item = choice(choice(choices[3]))
+            selected_item = choice(choice(selections[3]))
     return selected_item
 
 def print_positions(player_a, playera_choices, player_b, playerb_choices):
