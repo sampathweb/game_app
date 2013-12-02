@@ -14,7 +14,6 @@ def get_player_input(valid_selections):
 def get_computer_input(valid_choices, winning_combos, player_choices, current_choices, dif_level):
     '''Returns the computer selected row, col'''
     choices = defaultdict(list)
-    choices = defaultdict(list)
     if dif_level == 1:  # Easy - Pick any one from valid_choices list
         selected_item = choice(valid_choices)
     elif dif_level == 2:  # Hard - Try to block the player from winning
@@ -22,29 +21,11 @@ def get_computer_input(valid_choices, winning_combos, player_choices, current_ch
             rem_items = list(win_set - player_choices - current_choices)
             choices[len(rem_items)].append(rem_items)
         if choices.get(1):
-            selected_item = choices[1][0][0]
+            selected_item = choice(choice(choices[1]))
         elif choices.get(2):
-            selected_item = choices[2][0][0]
+            selected_item = choice(choice(choices[2]))
         else:
-            selected_item = choices[3][0][0]
-    else:   # Ultimate
-        for win_set in winning_combos:
-            rem_items = list(win_set - current_choices)
-            choices_ult[len(rem_items)].append(rem_items)
-            rem_items = list(win_set - player_choices)
-            choices[len(rem_items)].append(rem_items)
-            
-        if choices_ult.get(1):
-            selected_item = choices_ult[1][0][0]
-        if choices.get(1):
-            selected_item = choices[1][0][0]
-        if choices_ult.get(2):
-            selected_item = choices_ult[1][0][0]            
-        elif choices.get(2):
-            selected_item = choices[2][0][0]
-        else:
-            selected_item = choices[3][0][0]
-        pass
+            selected_item = choice(choice(choices[3]))
     return selected_item
 
 def print_positions(player_a, playera_choices, player_b, playerb_choices):
@@ -130,7 +111,7 @@ if __name__ == '__main__':
     if not player_a:
         player_a = 'You'
     while True:
-        dif_level = input('Select difficult level (1 - Easy, 2 - Hard, 3 - Ultimate): ')
+        dif_level = input('Select difficult level (1 - Easy, 2 - Hard): ')
         if dif_level.isdigit():
             dif_level = int(dif_level)
         else:
