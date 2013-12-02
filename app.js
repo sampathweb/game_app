@@ -44,7 +44,7 @@ $(function() {
           return block_line.pop();
         }
       }
-      if (app_toe.game_choices) {
+      if (app_toe.game_choices.length > 0) {
         console.log('pop any item');
         return app_toe.game_choices[0];
       }
@@ -105,7 +105,7 @@ $(function() {
         $('.result').text('You Lost.  Better luck next times');
       }
       // If there are no more slots, end the game
-      if (!app_toe.game_choices) {
+      if (app_toe.game_choices.length === 0) {
         $('.result').text('Its a Draw. Play Again?'); 
       }
     }
