@@ -13,8 +13,6 @@ h1, h2 {
     line-height: 1;
     color: #b7a107;
     padding: 0;
-
-
 }
 
 h1 {
@@ -34,6 +32,7 @@ button.btn {
 }
 
 ul.row li button {
+    overflow: auto;
     height: 5em;
     width: 5em;
 }
