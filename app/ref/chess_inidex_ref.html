@@ -1,0 +1,66 @@
+    /* Make pieces draggable */
+    $('#chess_board a').on('mousedown', function() {
+
+        var object = $(this);
+        var class_array = $(this).attr('class').split(' ');
+
+        console.log(object, class_array);
+        console.log(object.attr('id'));
+        // element(object,class_array);
+
+        return false;
+
+    }).draggable({
+        containment: [0,0,board.width,board.height],
+        grid: [80, 80],
+        zIndex: 1000
+    }).each(function(i, item){
+
+        var piece = $(item).attr('class').split(' ');
+        var start_cell = $(item).parent().attr('id').split('');
+
+        console.log(piece, start_cell);
+        // init_game(piece, start_cell);
+
+    });
+
+  <script type="text/javascript" src="{{url_for('static', filename='jquery-ui.js')}}"></script>
+
+
+;
+    var reset_board = function() {
+        for (var i = 0; i < 8; i++) {
+            for (var j = 0; j < 8; j++) {
+                chess_board[chess_row[i] + chess_col[j]] = '';
+            }
+            chess_board[chess_row[i] + '2'] = 'w_P';
+            chess_board[chess_row[i] + '7'] = 'b_P';
+            if (i == 0 || i == 7) {
+                chess_board[chess_row[i] + '1'] = 'w_R';
+                chess_board[chess_row[i] + '8'] = 'b_R';
+            } else if (i == 1 || i == 6) {
+                chess_board[chess_row[i] + '1'] = 'w_N';
+                chess_board[chess_row[i] + '8'] = 'b_N';
+            } else  if (i == 2 || i == 5) {
+                chess_board[chess_row[i] + '1'] = 'w_B';
+                chess_board[chess_row[i] + '8'] = 'b_B';
+            } else if (i == 3) {
+                chess_board[chess_row[i] + '1'] = 'w_Q';
+                chess_board[chess_row[i] + '8'] = 'b_Q';
+            } else if (i == 4) {
+                chess_board[chess_row[i] + '1'] = 'w_K';
+                chess_board[chess_row[i] + '8'] = 'b_K';
+            }
+        }
+        // for (var key in chess_board) {
+        //     $('#' + key).val(chess_board[key]);
+        // }
+    }
+    reset_board();
+
+    /* Get board dimensions */
+    var board = $('#chess_board');
+    board = {
+        width : board.width(),
+        height : board.height()
+    }

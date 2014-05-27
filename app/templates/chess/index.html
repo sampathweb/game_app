@@ -1,0 +1,537 @@
+{% extends 'base.html' %}
+{% block style %}
+<style>
+#chess_board { border:5px solid #333; }
+#chess_board td {
+    background:#fff;
+    background:-moz-linear-gradient(top, #fff, #eee);
+    background:-webkit-gradient(linear,0 0, 0 100%, from(#fff), to(#eee));
+    box-shadow:inset 0 0 0 1px #fff;
+    -moz-box-shadow:inset 0 0 0 1px #fff;
+    -webkit-box-shadow:inset 0 0 0 1px #fff;
+    height:60px;
+    text-align:center;
+    vertical-align:middle;
+    width:60px;
+}
+#chess_board tr:nth-child(odd) td:nth-child(even),
+#chess_board tr:nth-child(even) td:nth-child(odd) {
+    background:#ccc;
+    background:-moz-linear-gradient(top, #ccc, #eee);
+    background:-webkit-gradient(linear,0 0, 0 100%, from(#ccc), to(#eee));
+    box-shadow:inset 0 0 10px rgba(0,0,0,.4);
+    -moz-box-shadow:inset 0 0 10px rgba(0,0,0,.4);
+    -webkit-box-shadow:inset 0 0 10px rgba(0,0,0,.4);
+}
+#chess_board td a {
+    color:#000;
+    display:block;
+    font-size:50px;
+    height:60px;
+    position:relative;
+    text-decoration:none;
+    text-shadow:0 1px #fff;
+    width:60px;
+}
+.start-move-cell {
+    background-color: #FFC001;
+}
+.valid-move-cell {
+    background-color: #FFF7DE;
+}
+.last-move-cell {
+    background-color: #01F3FF;
+}
+.opponent-move-cell {
+    background-color: #FFE5E5;
+}
+#game {
+    width: 70%;
+    float: left;
+}
+#chat {
+    width: 20%;
+    float: right;
+}
+#messages {
+    clear: both;
+}
+</style>
+{% endblock style %}
+{% block body %}
+<br>
+<div class="row">
+    <div class="col-md-6">
+    <button class="btn js-new-game">New Game</button>
+    </div>
+    <div class="col-md-6 pull left">
+    <input type="text" name="room-name" id="room-name" placeholder="Game Room">
+    <button class="btn js-join-game">Join Game</button>
+    </div>
+</div>
+<br>
+<div class="row">
+<div class="col-md-8">
+    <table id="chess_board" cellpadding="0" cellspacing="0">
+        <tr>
+            <td><a id="a8"></a></td>
+            <td><a id="b8"></a></td>
+            <td><a id="c8"></a></td>
+            <td><a id="d8"></a></td>
+            <td><a id="e8"></a></td>
+            <td><a id="f8"></a></td>
+            <td><a id="g8"></a></td>
+            <td><a id="h8"></a></td>
+        </tr>
+        <tr>
+            <td><a id="a7"></a></td>
+            <td><a id="b7"></a></td>
+            <td><a id="c7"></a></td>
+            <td><a id="d7"></a></td>
+            <td><a id="e7"></a></td>
+            <td><a id="f7"></a></td>
+            <td><a id="g7"></a></td>
+            <td><a id="h7"></a></td>
+        </tr>
+        <tr>
+            <td><a id="a6"></a></td>
+            <td><a id="b6"></a></td>
+            <td><a id="c6"></a></td>
+            <td><a id="d6"></a></td>
+            <td><a id="e6"></a></td>
+            <td><a id="f6"></a></td>
+            <td><a id="g6"></a></td>
+            <td><a id="h6"></a></td>
+        </tr>
+        <tr>
+            <td><a id="a5"></a></td>
+            <td><a id="b5"></a></td>
+            <td><a id="c5"></a></td>
+            <td><a id="d5"></a></td>
+            <td><a id="e5"></a></td>
+            <td><a id="f5"></a></td>
+            <td><a id="g5"></a></td>
+            <td><a id="h5"></a></td>
+        </tr>
+        <tr>
+            <td><a id="a4"></a></td>
+            <td><a id="b4"></a></td>
+            <td><a id="c4"></a></td>
+            <td><a id="d4"></a></td>
+            <td><a id="e4"></a></td>
+            <td><a id="f4"></a></td>
+            <td><a id="g4"></a></td>
+            <td><a id="h4"></a></td>
+        </tr>
+        <tr>
+            <td><a id="a3"></a></td>
+            <td><a id="b3"></a></td>
+            <td><a id="c3"></a></td>
+            <td><a id="d3"></a></td>
+            <td><a id="e3"></a></td>
+            <td><a id="f3"></a></td>
+            <td><a id="g3"></a></td>
+            <td><a id="h3"></a></td>
+        </tr>
+        <tr>
+            <td><a id="a2"></a></td>
+            <td><a id="b2"></a></td>
+            <td><a id="c2"></a></td>
+            <td><a id="d2"></a></td>
+            <td><a id="e2"></a></td>
+            <td><a id="f2"></a></td>
+            <td><a id="g2"></a></td>
+            <td><a id="h2"></a></td>
+        </tr>
+        <tr>
+            <td><a id="a1"></a></td>
+            <td><a id="b1"></a></td>
+            <td><a id="c1"></a></td>
+            <td><a id="d1"></a></td>
+            <td><a id="e1"></a></td>
+            <td><a id="f1"></a></td>
+            <td><a id="g1"></a></td>
+            <td><a id="h1"></a></td>
+        </tr>
+    </table>
+</div>
+<div class="col-md-4">
+    <h4>Chat:</h4>
+    <div id="chat"></div>
+</div>
+</div>
+<div class="row">
+    <h4>Receive:</h4>
+    <div id="log"></div>
+</div>
+{% endblock body %}
+{% block js %}
+<script type="text/javascript" >
+// $(function() {
+    var game = {
+        // http://en.wikipedia.org/wiki/Chess_symbols_in_Unicode
+        'pieces': {
+            'white-king': '\u2654',
+            'white-queen': '\u2655',
+            'white-rook': '\u2656',
+            'white-bishop':'\u2657',
+            'white-knight': '\u2658',
+            'white-pawn': '\u2659',
+            'black-king': '\u265A',
+            'black-queen': '\u265B',
+            'black-rook': '\u265C',
+            'black-bishop':'\u265D',
+            'black-knight': '\u265E',
+            'black-pawn': '\u265F',
+        },
+        'file': ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+        'rank': ['1', '2', '3', '4', '5', '6', '7', '8'],
+        'init_board': {
+            'black-pawn': ['a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7'],
+            'black-rook': ['a8', 'h8'],
+            'black-knight': ['b8', 'g8'],
+            'black-bishop': ['c8', 'f8'],
+            'black-queen': ['d8'],
+            'black-king': ['e8'],
+            'white-pawn': ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
+            'white-rook': ['a1', 'h1'],
+            'white-knight': ['b1', 'g1'],
+            'white-bishop': ['c1', 'f1'],
+            'white-queen': ['d1'],
+            'white-king': ['e1']
+        },
+        'sel_cell': '',
+        'sel_piece': '',
+        'valid_cells': [],
+        'start_piece': '',
+        'last_move': '',
+        'opponent_move': '',
+        'my_color': 'white',
+        'my_move': true,
+        'my_pieces': [],
+        'my_pieces_loc': [],
+        'opp_pieces': [],
+        'opp_pieces_loc': [],
+        'room_name': '',
+        'set_start_cell': function(cell_id, piece) {
+            var piece_color = piece.split('-')[0];
+            if (piece_color == game.my_color) {
+                game.my_move = true;
+            } else {
+                game.my_move = false;
+            }
+            game.sel_cell = cell_id;
+            game.sel_piece = piece;
+            game.valid_cells = [];
+            game.set_valid_positions(cell_id, piece);
+            return true;
+        },
+        'set_valid_positions': function(piece_pos, piece) {
+            var piece_data = piece.split('-');
+            var piece_color = piece_data[0];
+            var piece_name = piece_data[1];
+            var piece_file = piece_pos[0];
+            var piece_rank = piece_pos[1];
+            var i,j; // Counter Variables
+            var inc = 1; // Assume White
+            var loop_index;
+            var rank_index, rank1, rank2, rank3, rank4;
+            var file_index, file1, file2, file3, file4;
+            var stop_dir1, stop_dir2, stop_dir3, stop_dir4;
+            game.valid_cells = [];
+            var add_valid_cell = function(file, rank) {
+                var stop_dir = false;
+                var same_pieces_loc;
+                var diff_pieces_loc;
+                if (game.my_move) {
+                    same_pieces_loc = game.my_pieces_loc;
+                    diff_pieces_loc = game.opp_pieces_loc;
+                } else {
+                    same_pieces_loc = game.opp_pieces_loc;
+                    diff_pieces_loc = game.my_pieces_loc;
+
+                }
+                // If Valid Position in Chess Board
+                if (file >= 0 && file < 8 && rank >= 0 && rank < 8) {
+                    // Check same positions
+                    if (same_pieces_loc.indexOf(game.file[file] + game.rank[rank]) != -1) {
+                        stop_dir = true;
+                    } else {
+                        // Now Add the Valid Cell
+                        game.valid_cells.push(game.file[file] + game.rank[rank]);
+                    }
+                    // Check against diffent Positions
+                    if (diff_pieces_loc.indexOf(game.file[file] + game.rank[rank]) != -1) {
+                        stop_dir = true;
+                    }
+                }
+                return stop_dir;
+            };
+            if (piece_color == 'black') {
+                inc = -1;
+            }
+            if (piece_name == 'pawn') {
+                piece_rank = parseInt(piece_rank);
+                game.valid_cells.push(piece_file + (piece_rank+inc));
+                if (piece_rank == 7 && piece_color == 'black') { // Black Home
+                game.valid_cells.push(piece_file + (piece_rank+inc+inc));
+                } else if (piece_rank == 2 && piece_color == 'white') { // White Home
+                game.valid_cells.push(piece_file + (piece_rank+inc+inc));
+                }
+                return game.valid_cells;
+            }
+            if (piece_name == 'bishop' || piece_name == 'queen') {
+                rank_index = game.rank.indexOf(piece_rank);
+                file_index = game.file.indexOf(piece_file);
+                file1 = file2 = file3 = file4 = file_index;
+                rank1 = rank2 = rank3 = rank4 = rank_index;
+                stop_dir1 = stop_dir2 = stop_dir3 = stop_dir4 = false;
+                for (i=0;i < 8; i++) {
+                    file1 = file1 + 1;
+                    rank1 = rank1 + 1;
+                    file2 = file2 - 1;
+                    rank2 = rank2 - 1;
+                    file3 = file3 - 1;
+                    rank3 = rank3 + 1;
+                    file4 = file4 + 1;
+                    rank4 = rank4 - 1;
+                    if (!stop_dir1) {
+                        stop_dir1 = add_valid_cell(file1, rank1);
+                    }
+                    if (!stop_dir2) {
+                        stop_dir2 = add_valid_cell(file2, rank2);
+                    }
+                    if (!stop_dir3) {
+                        stop_dir3 = add_valid_cell(file3, rank3);
+                    }
+                    if (!stop_dir4) {
+                        stop_dir4 = add_valid_cell(file4, rank4);
+                    }
+                }
+            }
+            if (piece_name == 'rook' || piece_name == 'queen') {
+                rank_index = game.rank.indexOf(piece_rank);
+                file_index = game.file.indexOf(piece_file);
+                file1 = file2 = file3 = file4 = file_index;
+                rank1 = rank2 = rank3 = rank4 = rank_index;
+                stop_dir1 = stop_dir2 = stop_dir3 = stop_dir4 = false;
+                for (i=0;i < 8; i++) {
+                    file1 = file1 + 1;
+                    file2 = file2 - 1;
+                    rank3 = rank3 + 1;
+                    rank4 = rank4 - 1;
+                    if (!stop_dir1) {
+                        stop_dir1 = add_valid_cell(file1, rank1);
+                    }
+                    if (!stop_dir2) {
+                        stop_dir2 = add_valid_cell(file2, rank2);
+                    }
+                    if (!stop_dir3) {
+                        stop_dir3 = add_valid_cell(file3, rank3);
+                    }
+                    if (!stop_dir4) {
+                        stop_dir4 = add_valid_cell(file4, rank4);
+                    }
+                }
+            }
+            if (piece_name == 'king') {
+                rank_index = game.rank.indexOf(piece_rank);
+                file_index = game.file.indexOf(piece_file);
+                add_valid_cell(file_index + 1, rank_index + 1);
+                add_valid_cell(file_index - 1, rank_index - 1);
+                add_valid_cell(file_index + 1, rank_index - 1);
+                add_valid_cell(file_index - 1, rank_index + 1);
+                add_valid_cell(file_index + 1, rank_index);
+                add_valid_cell(file_index - 1, rank_index);
+                add_valid_cell(file_index, rank_index + 1);
+                add_valid_cell(file_index, rank_index - 1);
+            }
+            if (piece_name == 'knight') {
+                rank_index = game.rank.indexOf(piece_rank);
+                file_index = game.file.indexOf(piece_file);
+                add_valid_cell(file_index + 2, rank_index + 1);
+                add_valid_cell(file_index + 2, rank_index - 1);
+                add_valid_cell(file_index - 2, rank_index + 1);
+                add_valid_cell(file_index - 2, rank_index - 1);
+                add_valid_cell(file_index + 1, rank_index + 2);
+                add_valid_cell(file_index - 1, rank_index + 2);
+                add_valid_cell(file_index + 1, rank_index - 2);
+                add_valid_cell(file_index - 1, rank_index - 2);
+            }
+        },
+        'send_move': function(msg) {
+            game.socket.emit('room-event', {room: game.room, data: msg});
+        },
+        'move_piece': function (target_pos, piece) {
+            var piece_idx;
+            var piece_color;
+            piece_color = piece.split('-')[0];
+            if (game.valid_cells.indexOf(target_pos) != -1) {
+               game.last_move = target_pos;
+               if (piece_color == game.my_color) {
+                   piece_idx = game.my_pieces_loc.indexOf(game.sel_cell);
+                   game.my_pieces_loc[piece_idx] = target_pos;
+                } else {
+                   piece_idx = game.opp_pieces_loc.indexOf(game.sel_cell);
+                   game.opp_pieces_loc[piece_idx] = target_pos;
+                }
+                // send message to Server Socket
+                if (game.room) {
+                    game.send_move({'piece': piece,
+                        'prev_loc': game.sel_cell,
+                        'new_loc': target_pos});
+                }
+                // Toggle next move
+                game.my_move = !game.my_move;
+               game.sel_cell = '';
+               game.valid_cells = [];
+               return true;
+            } else {
+               game.sel_cell = '';
+               game.valid_cells = [];
+                return false;
+            }
+        }
+    };
+    var reset_move_highlight = function() {
+        $('#chess_board a').removeClass('start-move-cell');
+        $('#chess_board a').removeClass('valid-move-cell');
+        $('#chess_board a').removeClass('last-move-cell');
+    };
+    var reset_board = function() {
+        var set_piece = function(piece) {
+            var piece_color = piece.split('-')[0];
+            var piece_name = piece.split('-')[1];
+            game.init_board[piece].forEach(function(cell_id) {
+                $('#' + cell_id).text(game.pieces[piece]);
+                $('#' + cell_id).attr('data-piece', piece);
+                if (piece_color == game.my_color) {
+                    game.my_pieces.push(piece_name);
+                    game.my_pieces_loc.push(cell_id);
+                } else {
+                    game.opp_pieces.push(piece_name);
+                    game.opp_pieces_loc.push(cell_id);
+                }
+            });
+        };
+        reset_move_highlight();
+        $('#chess_board a').text('');
+        set_piece('black-pawn');
+        set_piece('black-rook');
+        set_piece('black-knight');
+        set_piece('black-bishop');
+        set_piece('black-queen');
+        set_piece('black-king');
+        set_piece('white-pawn');
+        set_piece('white-rook');
+        set_piece('white-knight');
+        set_piece('white-bishop');
+        set_piece('white-queen');
+        set_piece('white-king');
+    };
+    $('#chess_board a').on('click', function() {
+        var piece;
+        var piece_color;
+        var start_cell;
+        var target_cell = $(this);
+        var cell_id = $(this).attr('id');
+        reset_move_highlight();
+
+        if (!game.sel_cell) {
+            piece = $(this).data('piece');
+            if (piece) {
+                piece_color = piece.split('-')[0];
+                if ((game.my_move && piece_color == game.my_color) || (!game.my_move && piece_color != game.my_color)) {
+                    if (game.set_start_cell(cell_id, piece)) {
+                        $(this).addClass('start-move-cell');
+                        game.valid_cells.forEach(function(item) {
+                            $('#' + item).addClass('valid-move-cell');
+                        });
+                    }
+                }
+            }
+        } else {
+            start_cell = $('#' + game.sel_cell);
+            piece = start_cell.data('piece');
+            if (game.move_piece(cell_id, piece)) {
+                target_cell.addClass('last-move-cell');
+                target_cell.attr('data-piece', game.sel_piece);
+                // target_cell.attr('href', '#');
+                target_cell.text(game.pieces[game.sel_piece]);
+                start_cell.text('');
+                start_cell.attr('data-piece', '');
+            }
+        }
+        console.log('Game: ', game);
+    });
+    reset_board();
+
+    // the socket.io documentation recommends sending an explicit package upon connection
+    // this is specially important when using the global namespace
+    var namespace = 'sockets'; // change to an empty string to use the global namespace
+    var socket = io.connect(window.location.href + namespace);
+    game.socket = socket;
+    console.log(window.location.href + namespace);
+    socket.on('connect', function() {
+        socket.emit('my event', {data: 'Connected to Game Server'});
+    });
+
+    // event handler for server sent data
+    // the data is displayed in the "Received" section of the page
+    socket.on('room-move', function(msg) {
+        console.log(msg);
+        $('#log').append('<br>Move: ' + msg.data['piece'] + ' From: ' + msg.data['prev_loc'] + ' To: ' + msg.data['new_loc']);
+    });
+
+    socket.on('set-room', function(msg) {
+        game.room = msg['room'];
+        $('#log').append('<br>Joined: ' + game.room);
+    });
+
+  $(".js-new-game").on("click", function(event) {
+    event.preventDefault();
+    game.room = '';
+    // navigate to the new page and append a random number at the end of the url
+    socket.emit('join', {room: game.room});
+  });
+
+  $(".js-join-game").on("click", function(event) {
+    event.preventDefault();
+    // navigate to the new page and append a random number at the end of the url
+    console.log($('#room-name').val());
+    game.room = '';
+    socket.emit('join', {room: $('#room-name').val()});
+  });
+
+  $("ul.row button").on("click", function(event) {
+    event.preventDefault();
+    var button = $(this);
+    var sel_item = button.val();
+    socket.emit('player-move', {room: $('#room_name').val(), data: sel_item});
+  });
+
+    socket.on('game-response', function(msg) {
+        $('#log').append('<br>Received Game Response #' + msg.count + ': ' + msg.data);
+    });
+
+    // handlers for the different forms in the page
+    // these send data to the server in a variety of ways
+    $('form#emit').submit(function(event) {
+        socket.emit('my-event', {data: $('#emit_data').val()});
+        return false;
+    });
+    $('form#broadcast').submit(function(event) {
+        socket.emit('broadcast-event', {data: $('#broadcast_data').val()});
+        return false;
+    });
+    $('form#join').submit(function(event) {
+        socket.emit('join', {room: $('#join_room').val()});
+        return false;
+    });
+    $('form#leave').submit(function(event) {
+        socket.emit('leave', {room: $('#leave_room').val()});
+        return false;
+    });
+// });
+</script>
+{% endblock js %}

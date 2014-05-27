@@ -1,0 +1,16 @@
+Flask
+requests
+WTForms
+nose
+coverage
+webassets
+python-dateutil
+Flask-Login
+Flask-SQLAlchemy
+Flask-Script
+Flask-Mail
+Flask-WTF
+Flask-Migrate
+flask-socketio
+ipython
+ipdb

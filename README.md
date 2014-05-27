@@ -1,6 +1,9 @@
-tic_tac_toe
+Game Center
 ===========
 
-tic_tac_toe - Game
+1. Tic-Tac-Toe
+2. Chess
 
-A Simple Tic Tac Toe Game to burn the break time.  Live at http://sampathweb.com/game_toe
+Two Player Games that you can play with your buddy or against the App.Simple Tic Tac Toe Game to burn the break time.
+
+Coming Soon at http://sampathweb.com/game-center
