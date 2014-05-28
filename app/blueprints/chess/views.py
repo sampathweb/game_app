@@ -25,47 +25,34 @@ def player_move(message):
          room=message['room'])
 
 
-@socketio.on('my-event', namespace=socket_name)
-def my_event(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('response',
-         {'data': message['data'], 'count': session['receive_count']})
-
-
-@socketio.on('broadcast-event', namespace=socket_name)
-def broadcast_event(message):
-    session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('response',
-         {'data': message['data'], 'count': session['receive_count']},
-         broadcast=True)
-
-
 @socketio.on('join', namespace=socket_name)
 def join(message):
-    response_data = {}
-    response_data['room'] = message['room']
-    if not response_data['room']:
-        response_data['room'] = 'game' + str(random.randint(1, 10000))
-    join_room(response_data['room'])
-    response_data['game_url'] = request.url + response_data['room']
+    new_game = False
+    play_computer = message['data']['play_computer']
+    if not message['room']:
+        new_game = True
+    if new_game:
+        game_room = 'game' + str(random.randint(1, 10000))
+        marker = 'X'
+    else:
+        game_room = message['room']
+        marker = 'O'
+    join_room(game_room)
     session['receive_count'] = session.get('receive_count', 0) + 1
-    response_data['data'] = 'In rooms: ' + ', '.join(request.namespace.rooms) + response_data['game_url']
+    response_data = {}
+    response_data['marker'] = marker
+    response_data['room'] = game_room
+    response_data['start'] = False
     response_data['count'] = session['receive_count']
-    emit('set-room', response_data)
-
-
-# @socketio.on('join', namespace=socket_name)
-# def join(message):
-#     response_data = {}
-#     if 'room' in message:
-#         response_data['room'] = message['room']
-#     else:
-#         response_data['room'] = 'game' + str(random.randint(1, 10000))
-#     join_room(response_data['room'])
-#     session['receive_count'] = session.get('receive_count', 0) + 1
-#     response_data['data'] = 'In rooms: ' + ', '.join(request.namespace.rooms) + response_data['game_url']
-#     response_data['count'] = session['receive_count']
-#     emit('response', response_data)
+    emit('set-room', {'data': response_data})
+    # Now broadcast to other player in the room that game can start
+    if new_game and not play_computer:
+        response_data['start'] = False
+        response_data['message'] = 'Waiting for Opponent to Join'
+    else:
+        response_data['start'] = True
+        response_data['move_marker'] = 'X'
+    emit('game-start', {'data': response_data}, room=response_data['room'])
 
 
 @socketio.on('leave', namespace=socket_name)
@@ -80,16 +67,33 @@ def leave(message):
 @socketio.on('room-event', namespace=socket_name)
 def room_event(message):
     session['receive_count'] = session.get('receive_count', 0) + 1
-    emit('room-move',
+    emit('game-move',
         {'data': message['data'], 'count': session['receive_count']},
         room=message['room'])
 
 
-@socketio.on('connect', namespace=socket_name)
+@socketio.on('connect-server', namespace=socket_name)
 def connect():
-    emit('response', {'data': 'Connected', 'count': 0})
+    emit('connect-response', {'data': {'connected': True}})
+    emit('msg-response', {'data': {'message': 'Connected to Game Server'}})
 
 
-@socketio.on('disconnect', namespace=socket_name)
+@socketio.on('disconnect-server', namespace=socket_name)
 def disconnect():
-    print 'Client disconnected'
+    emit('connect-response', {'data': {'connected': False}})
+    emit('msg-esponse', {'data': {'message': 'Dis-connected from Game Server'}})
+
+
+@socketio.on('my-event', namespace=socket_name)
+def my_event(message):
+    session['receive_count'] = session.get('receive_count', 0) + 1
+    emit('response',
+         {'data': message['data'], 'count': session['receive_count']})
+
+
+@socketio.on('broadcast-event', namespace=socket_name)
+def broadcast_event(message):
+    session['receive_count'] = session.get('receive_count', 0) + 1
+    emit('response',
+         {'data': message['data'], 'count': session['receive_count']},
+         broadcast=True)

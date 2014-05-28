@@ -1,12 +1,6 @@
 {% extends 'base.html' %}
 {% block style %}
 <style>
-button.btn {
-    height: 2em;
-    width: 7em;
-    font-size: 1.5em;
-}
-
 ul.row li button {
     overflow: auto;
     height: 5em;
@@ -24,41 +18,86 @@ button span {
 </style>
 {% endblock style %}
 {% block body %}
-  <input style="display:None" id="player-piece" >
-  <div>
-  <h1>Tic-Tac-Toe</h1>
+<input style="display:None" id="player-piece" >
+<h1>Tic-Tac-Toe <span class="result"></span></h1>
+<div class="row">
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-4">
+              <select id="js-new-game-opponent" class="form-control">
+                <option value="0">Friend</option>
+                <option value="1">Computer (Easy)</option>
+                <option value="2">Computer (Hard)</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <select id="js-new-game-piece" class="form-control">
+                <option>X (Go First)</option>
+                <option>O (Go Second)</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <button class="btn js-new-game">New Game</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="room-name" placeholder="Game Room">
+            </div>
+            <div class="col-md-6">
+              <button class="btn js-join-game">Join Game</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+  <div class="row">
+    <div class="col-md-4">
     <ul class="row">
-    <li><button value="0,0"><span class="content">_</span></button></li>
-    <li><button value="0,1"><span class="content">_</span></button></li>
-    <li><button value="0,2"><span class="content">_</span></button></li>
+    <li><button clas="btn-tic" value="0,0"><span class="content">_</span></button></li>
+    <li><button clas="btn-tic" value="0,1"><span class="content">_</span></button></li>
+    <li><button clas="btn-tic" value="0,2"><span class="content">_</span></button></li>
     </ul>
     <ul class="row">
-    <li><button value="1,0"><span class="content">_</span></button></li>
-    <li><button value="1,1"><span class="content">_</span></button></li>
-    <li><button value="1,2"><span class="content">_</span></button></li>
+    <li><button clas="btn-tic" value="1,0"><span class="content">_</span></button></li>
+    <li><button clas="btn-tic" value="1,1"><span class="content">_</span></button></li>
+    <li><button clas="btn-tic" value="1,2"><span class="content">_</span></button></li>
     </ul>
     <ul class="row">
-    <li><button value="2,0"><span class="content">_</span></button></li>
-    <li><button value="2,1"><span class="content">_</span></button></li>
-    <li><button value="2,2"><span class="content">_</span></button></li>
+    <li><button clas="btn-tic" value="2,0"><span class="content">_</span></button></li>
+    <li><button clas="btn-tic" value="2,1"><span class="content">_</span></button></li>
+    <li><button clas="btn-tic" value="2,2"><span class="content">_</span></button></li>
     </ul>
+    </div>
+    <div class="col-md-8">
+      <h3>Messages:</h3>
+      <div id="log"></div>
+    </div>
   </div>
-  <h2 class="result"></h2>
-  <button class="btn" type="submit">Play Again?</button>
-  <div>
-  <input type="text" name="room_name" id="room_name" placeholder="Game Room">
-  <button class="btn js-new-game">New Game</button>
-  <button class="btn js-join-game">Join Game</button>
-  </div>
-  <h2>Receive:</h2>
-  <div id="log"></div>
 {% endblock body %}
 {% block js %}
   <script type="text/javascript">
 // $(function() {
-  var app_toe = {
-    game_choices: ["0,0", "0,1", "0,2", "1,0", "1,1", "1,2", "2,0", "2,1", "2,2"],
-    winning_combos: [["0,0", "0,1", "0,2"],
+  var game = {
+    start: false,
+    my_marker: 'X', // Marker - X or O
+    player_a: true, // I am player a or player b
+    connected: false, // Connected to Game Server
+    opponent: 0,  // 0 - Friend, 1 - Computer (Easy), 2 - Computer (Hard)
+    my_turn: false, // Your Turn or Opponent's turn
+    play_computer: false,
+    level: 0,
+    init_choices: ["0,0", "0,1", "0,2", "1,0", "1,1", "1,2", "2,0", "2,1", "2,2"],
+    init_win_combos: [["0,0", "0,1", "0,2"],
                       ["1,0", "1,1", "1,2"],
                       ["2,0", "2,1", "2,2"],
                       ["0,0", "1,0", "2,0"],
@@ -66,13 +105,15 @@ button span {
                       ["0,2", "1,2", "2,2"],
                       ["0,0", "1,1", "2,2"],
                       ["0,2", "1,1", "2,0"]],
+    choices: [],
+    winning_combos: [],
     player_a: [],
     player_b: [],
-    game_result: '',
+    result: '',
     is_winner: function(player_a) {
       var count;
-      for (var i=0; i < app_toe.winning_combos.length; i++) {
-        var win_set = app_toe.winning_combos[i];
+      for (var i=0; i < game.winning_combos.length; i++) {
+        var win_set = game.winning_combos[i];
         count = 0;
         for (var j=0; j < win_set.length; j++) {
           var item = win_set[j];
@@ -84,49 +125,112 @@ button span {
           return true;
         }
       };
-
       return false;
     }
   };
-// On Play Gain, reset the game
-  $("ul.row button").on("click", function(event) {
-    event.preventDefault();
-    var button = $(this);
-    var sel_item = button.val();
-    app_toe.player_a.push(sel_item);
-    app_toe.game_choices.splice(app_toe.game_choices.indexOf(sel_item), 1);
-    var content = button.find(".content");
-    if (content) {
-      // set the game matrix
-      content.text($('#player-piece').val());
-      button.prop("disabled", true);
-      button.off("click");
-      // Check game over
-      if (app_toe.is_winner(app_toe.player_a)) {
-        $('.result').text('You Won!');
-      }
-      // Computer to Pick a slot
-      // sel_item = app_toe.computer_slot();
-      // if (sel_item) {
-      //   app_toe.player_b.push(sel_item);
-      //   app_toe.game_choices.splice(app_toe.game_choices.indexOf(sel_item), 1);
-      //   button = $('button[value="'+sel_item+'"]');
-      //   if (button) {
-      //     content = button.find(".content");
-      //     content.text('O');
-      //     button.prop("disabled", true);
-      //     // button.off("click");
-      //   }
-      }
-      if (app_toe.is_winner(app_toe.player_b)) {
-        $('.result').text('You Lost.  Better luck next times');
-      }
-      // If there are no more slots, end the game
-      if (app_toe.game_choices.length === 0) {
-        $('.result').text('Its a Draw. Play Again?');
-      }
-  });
 
+  var reset_game = function() {
+      $('.result').text('');
+      $('#log').html('');
+      game.start = false;
+      game.play_computer = false;
+      game.level = 0;
+      game.player_a = [];
+      game.player_b = [];
+      game.result = '';
+      game.choices = [];
+      game.winning_combos = [];
+      game.init_choices.forEach(function(item) {
+        game.choices.push(item);
+      });
+      game.init_win_combos.forEach(function(item) {
+        game.winning_combos.push(item);
+      });
+      $('ul button').each(function(index) {
+        set_button($(this), '_', false);
+      });
+  };
+
+  var check_result = function() {
+    var result = false;
+      // Check game over
+    if (game.is_winner(game.player_a)) {
+      $('.result').text(' - You Won!');
+      result = true;
+    } else if (game.is_winner(game.player_b)) {
+        $('.result').text(' - You Lost.  Better luck next time.');
+      result = true;
+    } else if (game.choices.length === 0) {
+    // If there are no more slots, end the game
+      $('.result').text(' - Its a Draw.');
+      result = true;
+    }
+    return result;
+  };
+
+  var move_marker = function(data) {
+    if (data.move_marker == game.my_marker) {
+      game.player_a.push(data.last_move);
+    } else {
+      game.player_b.push(data.last_move);
+    }
+    game.choices.splice(game.choices.indexOf(data.last_move), 1);
+    return true;
+  };
+
+  var button_click_event = function(event) {
+    event.preventDefault();
+    var $button = $(this);
+    var sel_item = $button.val();
+    if (game.my_turn) {
+      // set the game matrix
+      var data = {
+        'move_marker': game.my_marker,
+        'last_move': sel_item
+      }
+      move_marker(data);
+      set_button($button, game.my_marker);
+      // Send Move to Server
+      if (game.connected) {
+        console.log(game.room);
+        socket.emit('player-move', {
+          room: game.room,
+          data: {
+                'play_computer': game.play_computer,
+                'level': game.level,
+                'player_a': game.player_a,
+                 'player_b': game.player_b,
+                 'opponent': game.opponent,
+                 'move_marker': game.my_marker,
+                 'last_move': sel_item
+               }});
+      } else {
+        append_log('Not Connected to Server');
+      }
+      // Check if game ended
+      if (check_result()) {
+        append_log('Game Over. Start a New Game.');
+      }
+    }
+  };
+
+  var set_button = function($button, marker, disabled) {
+    var content = $button.find(".content");
+    if (typeof disabled === 'undefined') { disabled = true; }
+    content.text(marker);
+    if (disabled) {
+      $button.prop("disabled", true);
+      $button.off("click");
+    } else {
+      $button.prop("disabled", false);
+      $button.off("click");
+      $button.on("click", button_click_event);
+    }
+  };
+
+  var append_log = function(msg) {
+    $('#log').append('<br>' + msg);
+  };
 
     namespace = 'sockets'; // change to an empty string to use the global namespace
 
@@ -135,61 +239,105 @@ button span {
     var socket = io.connect(window.location.href + namespace);
     console.log(window.location.href + namespace);
     socket.on('connect', function() {
-        socket.emit('my event', {data: 'I\'m connected!'});
+        socket.emit('connect-server');
     });
 
-    // event handler for server sent data
-    // the data is displayed in the "Received" section of the page
-    socket.on('response', function(msg) {
-        $('#log').append('<br>Received #' + msg.count + ': ' + msg.data);
+    socket.on('connect-response', function(msg) {
+      game.connected = msg.data.connected;
+    });
+
+    socket.on('msg-response', function(msg) {
+      if (msg.data.message) {
+        append_log(msg.data.message);
+      }
+    });
+
+    socket.on('set-room', function(msg) {
+        game.room = msg.data['room'];
+        game.my_marker = msg.data['marker']
+        append_log('Joined: ' + game.room);
+        if (msg.data.message) {
+          append_log(msg.data['message']);
+        }
+    });
+
+    socket.on('game-start', function(msg) {
+      if (msg.data['start']) {
+        if (msg.data['move_marker'] == game.my_marker) {
+          game.start = true;
+          game.my_turn = true;
+          append_log('Game Started');
+          append_log('Your Turn to Move');
+        } else {
+          append_log('Game Started');
+          append_log('Waiting for Opponent to Move');
+        }
+      } else {
+          game.start = false;
+          game.my_turn = false;
+          append_log('Waiting for Opponent to Join');
+      }
+    });
+
+    socket.on('game-move', function(msg) {
+      console.log('game-move event');
+      if (msg.data['move_marker'] == game.my_marker) {
+        game.my_turn = false;
+        append_log('Waiting for Opponent to Move');
+      } else {
+        var $button = $('button[value="' + msg.data.last_move + '"');
+        set_button($button, msg.data['move_marker']);
+        move_marker(msg.data);
+        if (check_result()) {
+          append_log('Game Over. Start a New Game.');
+        } else {
+          game.my_turn = true;
+          append_log('Your Turn now - game-move');
+        }
+      }
     });
 
   $(".js-new-game").on("click", function(event) {
     event.preventDefault();
     // navigate to the new page and append a random number at the end of the url
-    socket.emit('join', {room: ''});
+    if (game.room) {
+      socket.emit('leave', {room: game.room});
+    }
+    reset_game();
+    var game_option = $('#js-new-game-opponent').val();
+    if (game_option == "0") {
+      game.play_computer = false;
+    } else {
+      game.play_computer = true;
+    }
+    game.level = parseInt(game_option);
+    socket.emit('join', {
+        'room': '',
+        data: {
+        "play_computer": game.play_computer,
+        "level": game.level
+      }});
   });
 
   $(".js-join-game").on("click", function(event) {
     event.preventDefault();
     // navigate to the new page and append a random number at the end of the url
+    if (game.room) {
+      socket.emit('leave', {room: game.room});
+    }
+    reset_game();
+    game.play_computer = false;
+    game.level = 0;
     console.log($('#room-name').val());
-    socket.emit('join', {room: $('#room-name').val()});
+    socket.emit('join', {
+      'room': $('#room-name').val(),
+      data: {
+        "play_computer": game.play_computer,
+        "level": game.level
+      }});
   });
-
-  $("ul.row button").on("click", function(event) {
-    event.preventDefault();
-    var button = $(this);
-    var sel_item = button.val();
-    socket.emit('player-move', {room: $('#room_name').val(), data: sel_item});
-  });
-
-    socket.on('game-response', function(msg) {
-        $('#log').append('<br>Received Game Response #' + msg.count + ': ' + msg.data);
-    });
-
-    // handlers for the different forms in the page
-    // these send data to the server in a variety of ways
-    $('form#emit').submit(function(event) {
-        socket.emit('my-event', {data: $('#emit_data').val()});
-        return false;
-    });
-    $('form#broadcast').submit(function(event) {
-        socket.emit('broadcast-event', {data: $('#broadcast_data').val()});
-        return false;
-    });
-    $('form#join').submit(function(event) {
-        socket.emit('join', {room: $('#join_room').val()});
-        return false;
-    });
-    $('form#leave').submit(function(event) {
-        socket.emit('leave', {room: $('#leave_room').val()});
-        return false;
-    });
-    $('form#send_room').submit(function(event) {
-        socket.emit('room-event', {room: $('#room_name').val(), data: $('#room_data').val()});
-        return false;
-    });
+  // Initiailze Game
+  reset_game();
 // });
   </script>
 {% endblock js %}
