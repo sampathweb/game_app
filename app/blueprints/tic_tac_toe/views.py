@@ -1,7 +1,7 @@
 import random
 from flask import Blueprint, render_template, session, request
 from flask.ext.socketio import emit, join_room, leave_room
-from pytic_tac_toe.rules import TicTacToe
+from board_games import TicTacToe
 from app import socketio
 
 tic_tac_toe = Blueprint(
