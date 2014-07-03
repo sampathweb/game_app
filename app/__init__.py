@@ -26,12 +26,11 @@ def create_app(object_name, env):
     socketio.init_app(app)
 
     # register our blueprints
-    from app.blueprints import main, tic_tac_toe, chess
+    from app.blueprints import main, tic_tac_toe, battleship, checkers, chess
     app.register_blueprint(main)
     app.register_blueprint(tic_tac_toe)
+    app.register_blueprint(battleship)
+    app.register_blueprint(checkers)
     app.register_blueprint(chess)
-
-    from .api_1_0 import api as api_1_0_blueprint
-    app.register_blueprint(api_1_0_blueprint, url_prefix='/api/v1.0')
 
     return app

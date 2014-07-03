@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block style %}
+<style>
+ul.row li button {
+    overflow: auto;
+    height: 5em;
+    width: 5em;
+}
+
+ul.row li  {
+    display: inline;
+}
+
+button span {
+    font-size: 3em;
+    margin: auto auto;
+}
+</style>
+{% endblock style %}
+{% block body %}
+<input style="display:None" id="player-piece" >
+<h1>Tic-Tac-Toe <span class="result"></span></h1>
+<div class="row">
+    <div class="col-md-6">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-4">
+              <select id="js-new-game-opponent" class="form-control">
+                <option value="0">Friend</option>
+                <option value="1">Computer (Easy)</option>
+                <option value="2">Computer (Hard)</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <select id="js-new-game-piece" class="form-control">
+                <option>X (Go First)</option>
+                <option>O (Go Second)</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <button class="btn js-new-game">New Game</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="room-name" placeholder="Game Room">
+            </div>
+            <div class="col-md-6">
+              <button class="btn js-join-game">Join Game</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+  <div class="row">
+    <div class="col-md-4">
+    <ul class="row">
+    <li><button clas="btn-tic" value="0,0"><span class="content">_</span></button></li>
+    <li><button clas="btn-tic" value="0,1"><span class="content">_</span></button></li>
+    <li><button clas="btn-tic" value="0,2"><span class="content">_</span></button></li>
+    </ul>
+    <ul class="row">
+    <li><button clas="btn-tic" value="1,0"><span class="content">_</span></button></li>
+    <li><button clas="btn-tic" value="1,1"><span class="content">_</span></button></li>
+    <li><button clas="btn-tic" value="1,2"><span class="content">_</span></button></li>
+    </ul>
+    <ul class="row">
+    <li><button clas="btn-tic" value="2,0"><span class="content">_</span></button></li>
+    <li><button clas="btn-tic" value="2,1"><span class="content">_</span></button></li>
+    <li><button clas="btn-tic" value="2,2"><span class="content">_</span></button></li>
+    </ul>
+    </div>
+    <div class="col-md-8">
+      <h3>Messages:</h3>
+      <div id="log"></div>
+    </div>
+  </div>
+{% endblock body %}
+{% block js %}
+{% endblock js %}
