@@ -3,7 +3,7 @@ Game App
 
 Two Player Board Games that you can play with your buddy.
 
-Checkout the Alpha at games.sampathweb.com and let me know. Send your comments  / suggestions to ramesh at sampathweb dot com
+Checkout the Alpha at http://games.sampathweb.com and let me know. Send your comments  / suggestions to ramesh at sampathweb dot com
 
 Games in the works:
 ------
