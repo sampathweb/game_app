@@ -63,8 +63,6 @@
     <div class="container">
       <nav class="blog-nav">
         <a class="blog-nav-item {% if request.path.find('/tic-tac-toe/') != -1 %}active{% endif %}" href="{{url_for('tic_tac_toe.index')}}">Tic-Tac-Toe</a>
-        <a class="blog-nav-item {% if request.path.find('/battleship/') != -1 %}active{% endif %}" href="{{url_for('battleship.index')}}">Battle Ship</a>
-        <a class="blog-nav-item {% if request.path.find('/checkers/') != -1 %}active{% endif %}" href="{{url_for('checkers.index')}}">Checkers</a>
         <a class="blog-nav-item {% if request.path.find('/chess/') != -1 %}active{% endif %}" href="{{url_for('chess.index')}}">Chess</a>
         <a class="blog-nav-item" href="https://github.com/sampathweb/game_app">Source (Github)</a>
       </nav>
