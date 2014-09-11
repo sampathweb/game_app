@@ -13,6 +13,7 @@ if app.config.get('FLASK_COVERAGE'):
     COV = coverage(branch=True, include='app/*')
     COV.start()
 
+# Start the manager
 manager = Manager(app)
 manager.add_command("runserver", Server(use_debugger=True, use_reloader=True))
 manager.add_command("sockrun", socketio.run(app))
